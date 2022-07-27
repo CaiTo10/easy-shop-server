@@ -99,7 +99,7 @@ router.post("/register", async (req, res, next) => {
     if (!user) {
       return res.status(404).send("Category Failed to  create");
     }
-    res.send(user);
+    res.status(200).send(user);
   } catch (error) {
     console.log(error)
     res.status(500).send(error);
