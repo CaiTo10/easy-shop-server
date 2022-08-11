@@ -33,7 +33,7 @@ router.get("/:id",async (req, res, next) => {
 
 router.get("/get/count",async (req, res, next) => {
   try {
-    console.log(req.auth)
+    
     const userCount = await User.countDocuments();
     if (!userCount) {
       return res.send("no User available");
@@ -101,7 +101,7 @@ router.post("/register", async (req, res, next) => {
     }
     res.status(200).send(user);
   } catch (error) {
-    console.log(error)
+    
     res.status(500).send(error);
   }
 });
@@ -148,7 +148,7 @@ router.delete("/:id", (req, res, next) => {
       }
     })
     .catch((err) => {
-      console.log(err);
+      
       res.status(400).json({
         success: false,
         error: err,

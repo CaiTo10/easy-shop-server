@@ -7,12 +7,18 @@ class Database{
     connect(){
         try {
             mongoose.connect(process.env.MONGODB_URL)
-            .then(()=>{console.log("Successfully connected with Mongo Atlas")})
+            .then(()=>console.log(`Successfully Connected to Database`))
         } catch (error) {
-            console.log("Reconnecting to DB")
+            
             this.connect()
         }
     }
 }
 
 module.exports = new Database()
+
+try {
+    
+} catch (error) {
+    
+}

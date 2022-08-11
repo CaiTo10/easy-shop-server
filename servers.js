@@ -23,7 +23,7 @@ app.use('/public/uploads',express.static(__dirname + '/public/uploads'));
 
 const PORT = process.env.PORT || 8181
 const server = app.listen(PORT,()=>{
-    console.log(`Express is working on port ${PORT}`)
+    
 })
 
 module.exports = {

@@ -4,6 +4,9 @@ const mongoose = require("mongoose")
 const PRODUCT = require("../../schema/productSchema");
 const CATEGORY = require("../../schema/categorySchema");
 const multer = require('multer')
+var mime = require('mime-types')
+const fs = require('fs');
+const path = require('path')
 
 const FILE_TYPE_MAP = {
   'image/png':'png',
@@ -16,7 +19,8 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const fileName = file.originalname.split(" ").join("-")
-    const extension = FILE_TYPE_MAP[file.mimetype]
+    const extension = file.originalname.split(".").pop()
+    console.log({extension})
     cb(null, `${fileName}-${Date.now()}.${extension}`)
   }
 })
@@ -25,7 +29,7 @@ const uploadOptions = multer({ storage: storage })
 
 router.get("/", async (req, res, next) => {
   try {
-    console.log(req.auth)
+    
     const filter = {}
 
     if(req.query.categories){
@@ -89,7 +93,7 @@ router.get("/get/featured/",async(req,res,next)=>{
 
 router.post("/",uploadOptions.single('image') ,async (req, res, next) => {
   const category = await CATEGORY.findById(req.body.category);
-  console.log(category);
+  
   if (!category) {
     return res.status(400).send("Invalid Category Selected");
   }
@@ -97,8 +101,9 @@ router.post("/",uploadOptions.single('image') ,async (req, res, next) => {
   if(!file){
     return res.status(400).send("No Product Image")
   }
-  console.log(req.file)
+  
   const fileName = req.file.filename
+  console.log(file.filename)
   const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
   const newProduct = new PRODUCT({
     name: req.body.name,
@@ -114,6 +119,7 @@ router.post("/",uploadOptions.single('image') ,async (req, res, next) => {
     numReviews: req.body.numReviews,
     isFeatured: req.body.isFeatured,
   });
+  console.log({newProduct})
   const product = await newProduct.save();
   if (!product) {
     return res.status(500).send("Failed to Create New Product");
@@ -129,7 +135,7 @@ router.put("/:id",uploadOptions.single('image'), async (req, res, next) => {
     }
     // mongoose.isValidObjectId(id)
     const category = await CATEGORY.findById(req.body.category)
-    console.log(category);
+    
     if (!category) {
       return res.status(400).send("Invalid Category Selected");
     }
@@ -172,7 +178,7 @@ router.put("/:id",uploadOptions.single('image'), async (req, res, next) => {
     }
     res.status(202).send(updatedProduct);
   } catch (error) {
-    console.log(error)
+    
     return res.status(500).send(error)
   }
 });
@@ -184,12 +190,12 @@ try {
     return res.status(400).send("Please check your request ID")
   }
   const files= req.files
-  console.log({files})
+  
   let imagesPaths = []
   const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
   if(files){
     files.map(file=>{
-      console.log({file})
+      
       imagesPaths.push(`${basePath}${file.filename}`)
     })
   }
@@ -208,7 +214,7 @@ try {
   }
   res.status(202).send(updatedProduct)
 } catch (error) {
-  console.log(error)
+  
   res.status(500).send("Issue at backend")
 }
 })
@@ -216,7 +222,17 @@ try {
 router.delete("/:id", (req, res, next) => {
   const id = req.params.id;
   PRODUCT.findByIdAndDelete(id)
-    .then((product) => {
+    .then(async (product) => {
+      // console.log(`${product} deleted`)
+      let imageResponse = product.image; 
+      imageResponse = imageResponse.split("/").pop()
+      console.log(imageResponse);
+      let targetPath = __dirname.split("/").slice(0,-2).join("/")
+      console.log({targetPath})
+      fs.unlink(`${targetPath}/public/uploads/${imageResponse}`, (err) => {
+        if (err) throw err;
+        console.log('successfully deleted file');
+      });
       if (product) {
         return res.status(200).json({
           success: true,
@@ -230,7 +246,7 @@ router.delete("/:id", (req, res, next) => {
       }
     })
     .catch((err) => {
-      console.log(err);
+      
       res.status(400).json({
         success: false,
         error: err,

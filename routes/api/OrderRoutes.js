@@ -7,7 +7,7 @@ const ORDERITEM = require("../../schema/orderItemSchema");
 
 
 router.get("/", async (req, res, next) => {
-  // console.log(req.auth)
+  // 
   const orderList = await ORDER.find().populate("user", ["name"]);
   if (!orderList) {
     res.sendStatus(500);
@@ -29,7 +29,7 @@ router.get("/:id", async (req, res, next) => {
     }) // === order = await ORDERITEM.populate(order,{path:"orderItems.product"})
     .sort({"dateOrdered":-1})
     .catch((error) => {
-      console.log(error);
+      
       return res.sendStatus(500).send(error);
     });
   if (!order) {
@@ -88,9 +88,9 @@ router.get("/get/userorders/:userId", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   const userAuth = req.auth.userId
-  console.log(userAuth)
+  
   try {
-    console.log(req.auth);
+    
     const orderItemsIds = Promise.all(
       req.body.orderItems.map(async (orderItem) => {
         let newOrderItem = new ORDERITEM({
@@ -114,7 +114,7 @@ router.post("/", async (req, res, next) => {
         return totalPrice;
       })
     );
-    // console.log(totalPrices)
+    // 
     const combinedTotalPrice = totalPrices.reduce((a, b) => a + b, 0);
 
     let order = new ORDER({
@@ -135,7 +135,7 @@ router.post("/", async (req, res, next) => {
     }
     res.send(order);
   } catch (error) {
-    console.log(error);
+    
     res.status(500).send(error);
   }
 });
@@ -162,7 +162,7 @@ router.delete("/:id", (req, res, next) => {
   const id = req.params.id;
   ORDER.findByIdAndDelete(id)
     .then(async (order) => {
-      // console.log({order})
+      // 
       if (order) {
         order.orderItems.map(async (orderItem) => {
           await ORDERITEM.findByIdAndRemove(orderItem);
@@ -179,7 +179,7 @@ router.delete("/:id", (req, res, next) => {
       }
     })
     .catch((err) => {
-      console.log(err);
+      
       res.status(400).json({
         success: false,
         error: err,
