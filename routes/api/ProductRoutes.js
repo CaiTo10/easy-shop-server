@@ -105,7 +105,7 @@ router.post("/",uploadOptions.single('image') ,async (req, res, next) => {
   const fileName = req.file.filename
   console.log(file.filename)
   // const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`
-  const basePath= "https://easy-shop-server4321.herokuapp.com"
+  const basePath= "http://easy-shop-server4321.herokuapp.com/public/uploads/"
   const newProduct = new PRODUCT({
     name: req.body.name,
     description: req.body.description,
